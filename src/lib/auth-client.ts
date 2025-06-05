@@ -5,7 +5,8 @@ import type { Session, User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { createClient } from "~/lib/supabase/client";
+import { createClient } from "../lib/supabase/client";
+import { getURL } from "./utils";
 
 // Auth methods
 export const signIn = {
@@ -22,7 +23,7 @@ export const signIn = {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: getURL("/auth/callback"),
       },
       provider,
     });
@@ -141,50 +142,40 @@ export const getCurrentUserSession = async () => {
 export const twoFactor = {
   disable: async ({ password }: { password: string }) => {
     const supabase = createClient();
+    // Get all factors
+    const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
 
-    try {
-      // Get all factors
-      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+    if (factorsError) throw factorsError;
 
-      if (factorsError) throw factorsError;
+    // Unenroll all TOTP factors
+    for (const factor of factors.totp) {
+      const { error: unenrollError } = await supabase.auth.mfa.unenroll({
+        factorId: factor.id
+      });
 
-      // Unenroll all TOTP factors
-      for (const factor of factors.totp) {
-        const { error: unenrollError } = await supabase.auth.mfa.unenroll({
-          factorId: factor.id
-        });
-
-        if (unenrollError) throw unenrollError;
-      }
-
-      return { success: true };
-    } catch (error) {
-      throw error;
+      if (unenrollError) throw unenrollError;
     }
+
+    return { success: true };
   },
 
   enable: async ({ password }: { password: string }) => {
     const supabase = createClient();
+    // Enroll MFA
+    const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
+      factorType: 'totp',
+      friendlyName: 'Authenticator App'
+    });
 
-    try {
-      // Enroll MFA
-      const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
-        factorType: 'totp',
-        friendlyName: 'Authenticator App'
-      });
+    if (enrollError) throw enrollError;
 
-      if (enrollError) throw enrollError;
-
-      return {
-        data: {
-          backupCodes: [], // Supabase doesn't provide backup codes by default
-          secret: enrollData.totp.secret,
-          totpURI: enrollData.totp.uri
-        }
-      };
-    } catch (error) {
-      throw error;
-    }
+    return {
+      data: {
+        backupCodes: [], // Supabase doesn't provide backup codes by default
+        secret: enrollData.totp.secret,
+        totpURI: enrollData.totp.uri
+      }
+    };
   },
 
   verifyBackupCode: async ({ code }: { code: string }) => {
@@ -195,27 +186,22 @@ export const twoFactor = {
 
   verifyTotp: async ({ code }: { code: string }) => {
     const supabase = createClient();
+    // Get the challenge
+    const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+      factorId: '' // Will need to get the factor ID
+    });
 
-    try {
-      // Get the challenge
-      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: '' // Will need to get the factor ID
-      });
+    if (challengeError) throw challengeError;
 
-      if (challengeError) throw challengeError;
+    // Verify the code
+    const { data, error } = await supabase.auth.mfa.verify({
+      challengeId: challengeData.id,
+      code,
+      factorId: challengeData.id
+    });
 
-      // Verify the code
-      const { data, error } = await supabase.auth.mfa.verify({
-        challengeId: challengeData.id,
-        code,
-        factorId: challengeData.id
-      });
+    if (error) throw error;
 
-      if (error) throw error;
-
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    return data;
   }
 };
