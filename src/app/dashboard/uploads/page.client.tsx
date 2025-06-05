@@ -4,7 +4,7 @@ import { AlertCircle, Link as LinkIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import type { MediaUpload } from "~/db/schema/uploads/types";
+import type { MediaUpload } from "~/lib/supabase/service";
 import type { GalleryMediaItem } from "~/ui/components/blocks/bento-media-gallery";
 
 import { UploadButton } from "~/lib/uploadthing";
@@ -35,10 +35,16 @@ export default function UploadsPageClient() {
         type: "image" | "video";
       })[];
       const formattedItems = data.map((upload) => ({
-        desc: `Uploaded on ${new Date(upload.createdAt).toLocaleDateString()}`,
+        desc: `Uploaded on ${
+          upload.createdAt
+            ? new Date(upload.createdAt).toLocaleDateString()
+            : "Unknown date"
+        }`,
         id: upload.id,
         span: "md:col-span-1 md:row-span-2 sm:col-span-1 sm:row-span-2",
-        title: `${upload.type === "image" ? "Image" : "Video"} ${upload.key.substring(0, 8)}...`,
+        title: `${
+          upload.type === "image" ? "Image" : "Video"
+        } ${upload.key.substring(0, 8)}...`,
         type: upload.type,
         url: upload.url,
       }));
@@ -47,7 +53,7 @@ export default function UploadsPageClient() {
       console.error(err);
       toast.error("Failed to load media");
       setError(
-        err instanceof Error ? err.message : "An unknown error occurred",
+        err instanceof Error ? err.message : "An unknown error occurred"
       );
     } finally {
       setIsMediaLoading(false);
@@ -84,7 +90,7 @@ export default function UploadsPageClient() {
       console.error(err);
       toast.error("Failed to upload from URL");
       setError(
-        err instanceof Error ? err.message : "Failed to upload from URL",
+        err instanceof Error ? err.message : "Failed to upload from URL"
       );
     } finally {
       setIsUploadingFromUrl(false);

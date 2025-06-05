@@ -2,9 +2,8 @@ import { createId } from "@paralleldrive/cuid2";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 
-import { db } from "~/db";
-import { uploadsTable } from "~/db/schema";
 import { getCurrentUser } from "~/lib/auth";
+import { createUpload } from "~/lib/supabase/service";
 
 const f = createUploadthing();
 // FileRouter for the app, can contain multiple FileRoutes
@@ -40,10 +39,9 @@ export const ourFileRouter = {
       console.log("file url", file.ufsUrl); // Public CDN URL is useful info
       console.log("file key", file.key);
 
-      // Save the upload details to the database
+      // Save the upload details to the database using Supabase
       try {
-        await db.insert(uploadsTable).values({
-          id: createId(),
+        await createUpload({
           key: file.key,
           type: "image",
           url: file.ufsUrl, // Store the public CDN URL
@@ -89,8 +87,7 @@ export const ourFileRouter = {
 
       // Save the upload details to the database
       try {
-        await db.insert(uploadsTable).values({
-          id: createId(),
+        await createUpload({
           key: file.key,
           type: "video", // Explicitly set type to video
           url: file.ufsUrl,

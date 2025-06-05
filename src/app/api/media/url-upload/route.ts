@@ -1,9 +1,8 @@
 import { createId } from "@paralleldrive/cuid2";
 import { NextResponse } from "next/server";
 
-import { db } from "~/db";
-import { uploadsTable } from "~/db/schema/uploads/tables";
 import { getCurrentUser } from "~/lib/auth";
+import { createUpload } from "~/lib/supabase/service";
 
 export async function POST(req: Request) {
   try {
@@ -47,10 +46,8 @@ export async function POST(req: Request) {
     // Create a unique key for the media
     const key = `url-${createId()}`;
 
-    // Insert into database
-    await db.insert(uploadsTable).values({
-      createdAt: new Date(),
-      id: createId(),
+    // Insert into database using Supabase service
+    await createUpload({
       key,
       type,
       url,

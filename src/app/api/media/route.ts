@@ -1,11 +1,9 @@
-import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { UTApi } from "uploadthing/server";
 
-import { db } from "~/db";
-import { uploadsTable } from "~/db/schema/uploads/tables";
 import { getCurrentUser } from "~/lib/auth";
+import { deleteUpload, getUserUploads } from "~/lib/supabase/service";
 
 export async function DELETE(request: Request) {
   try {
@@ -19,10 +17,9 @@ export async function DELETE(request: Request) {
       return new NextResponse("Missing media ID", { status: 400 });
     }
 
-    // Get the media item to check ownership and get the key
-    const mediaItem = await db.query.uploadsTable.findFirst({
-      where: eq(uploadsTable.id, body.id),
-    });
+    // Get all user uploads and find the specific one
+    const userUploads = await getUserUploads(user.id);
+    const mediaItem = userUploads.find(item => item.id === body.id);
 
     if (!mediaItem) {
       return new NextResponse("Media not found", { status: 404 });
@@ -37,7 +34,7 @@ export async function DELETE(request: Request) {
     await utapi.deleteFiles(mediaItem.key);
 
     // Delete from database
-    await db.delete(uploadsTable).where(eq(uploadsTable.id, body.id));
+    await deleteUpload(body.id);
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
@@ -61,17 +58,7 @@ export async function GET(request: Request) {
     const userId = user.id;
 
     // Fetch all media types for the user
-    const userMedia = await db
-      .select({
-        createdAt: uploadsTable.createdAt,
-        id: uploadsTable.id,
-        key: uploadsTable.key,
-        type: uploadsTable.type,
-        url: uploadsTable.url,
-      })
-      .from(uploadsTable)
-      .where(eq(uploadsTable.userId, userId))
-      .orderBy(uploadsTable.createdAt);
+    const userMedia = await getUserUploads(userId);
 
     return NextResponse.json(userMedia);
   } catch (error) {

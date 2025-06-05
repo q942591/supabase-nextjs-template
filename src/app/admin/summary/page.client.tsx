@@ -6,7 +6,7 @@ import type React from "react";
 import { Hash, Mail, User as UserIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
-import type { MediaUpload } from "~/db/schema/uploads/types";
+import type { MediaUpload } from "~/lib/supabase/service";
 import type { GalleryMediaItem } from "~/ui/components/blocks/bento-media-gallery";
 
 import { ADMIN_CONFIG } from "~/app";
@@ -107,9 +107,11 @@ const AdminPageClient: React.FC<AdminPageClientProps> = ({ initialData }) => {
             <div className="flex flex-wrap gap-2">
               {uploads.map((upload: MediaUpload) => {
                 const galleryItem: GalleryMediaItem = {
-                  desc: `Uploaded by ${user.email || "Unknown"} on ${new Date(
+                  desc: `Uploaded by ${user.email || "Unknown"} on ${
                     upload.createdAt
-                  ).toLocaleDateString()}`,
+                      ? new Date(upload.createdAt).toLocaleDateString()
+                      : "Unknown date"
+                  }`,
                   id: upload.id,
                   span: "md:col-span-1 md:row-span-2 sm:col-span-1 sm:row-span-2", // Default span value
                   title: `${

@@ -1,4 +1,4 @@
-import { getUsersWithUploads } from "~/lib/queries/uploads";
+import { getUsersWithUploads } from "~/lib/queries/admin";
 
 import AdminPageClient from "./page.client";
 
