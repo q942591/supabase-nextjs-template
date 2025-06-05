@@ -112,12 +112,6 @@ export function HeaderUserDropdown({
             Uploads
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/admin/summary">
-            <Shield className="mr-2 h-4 w-4" />
-            Admin
-          </Link>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           asChild
@@ -128,7 +122,7 @@ export function HeaderUserDropdown({
               : `
                 txt-destructive
                 focus:text-destrctive
-              `,
+              `
           )}
         >
           <Link href="/auth/sign-out">
