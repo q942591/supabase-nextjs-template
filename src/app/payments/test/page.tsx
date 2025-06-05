@@ -305,8 +305,8 @@ export default function PaymentTestPage() {
       {showPaymentForm && clientSecret && (
         <div
           className={`
-          fixed inset-0 z-50 flex items-center justify-center bg-black/50
-        `}
+            fixed inset-0 z-50 flex items-center justify-center bg-black/50
+          `}
         >
           <div className="w-full max-w-md rounded-lg bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
@@ -351,8 +351,8 @@ export default function PaymentTestPage() {
 
             <div
               className={`
-              mt-4 space-y-1 rounded-md bg-gray-50 p-3 text-sm text-gray-500
-            `}
+                mt-4 space-y-1 rounded-md bg-gray-50 p-3 text-sm text-gray-500
+              `}
             >
               <p className="font-medium">测试卡信息:</p>
               <p>卡号: 4242 4242 4242 4242</p>
