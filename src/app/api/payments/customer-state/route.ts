@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 import { getCustomerState } from "~/api/payments/service";
 import { getCurrentUser } from "~/lib/auth";

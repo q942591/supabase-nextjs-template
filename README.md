@@ -87,13 +87,16 @@ relivator now integrates with [polar](https://polar.sh) for payment processing a
 1. create an account on [polar](https://polar.sh)
 2. create an organization and get an organization access token
 3. configure your environment variables in `.env`:
+
    ```
    POLAR_ACCESS_TOKEN="your_access_token"
    POLAR_WEBHOOK_SECRET="your_webhook_secret"
    POLAR_ENVIRONMENT="production" # or "sandbox" for testing
    ```
+
 4. create products in the polar dashboard
 5. update the product IDs in `src/lib/auth.ts` to match your polar products:
+
    ```typescript
    checkout: {
      enabled: true,
@@ -105,6 +108,7 @@ relivator now integrates with [polar](https://polar.sh) for payment processing a
      ]
    }
    ```
+
 6. run `bun db:push` to create the necessary database tables
 7. start the application with `bun dev`
 
@@ -147,3 +151,106 @@ the following api routes are available for payment processing:
 ## license
 
 mit © 2025 [nazar kornienko (blefnk)](https://github.com/blefnk), [reliverse](https://github.com/reliverse)
+
+## Supabase 数据库迁移
+
+项目使用Supabase进行数据库管理。要执行数据库迁移，可以使用以下方法：
+
+### 方法一：使用Supabase CLI（推荐）
+
+1. 确保已安装Supabase CLI
+
+   ```bash
+   # 检查是否已安装
+   supabase --version
+   
+   # 安装CLI（如果未安装）
+   brew install supabase/tap/supabase
+   ```
+
+2. 登录到你的Supabase账户
+
+   ```bash
+   supabase login
+   ```
+
+3. 链接到你的Supabase项目
+
+   ```bash
+   supabase link --project-ref your-project-ref
+   ```
+
+4. 执行迁移
+
+   ```bash
+   supabase db push
+   ```
+
+### 方法二：手动执行SQL
+
+1. 登录到[Supabase控制台](https://app.supabase.com)
+2. 选择你的项目
+3. 导航到SQL编辑器
+4. 打开`supabase/migrations`目录下的SQL文件
+5. 复制SQL内容并在SQL编辑器中执行
+
+### 故障排除
+
+如果遇到`relation "public.polar_customers" does not exist`等错误，请确保执行了所有迁移文件，特别是：
+
+- `20231101_create_payments_table.sql`
+- `20240801_create_polar_tables.sql`
+
+# 环境变量配置
+
+确保在`.env.local`文件中添加以下环境变量：
+
+```bash
+# Supabase配置
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # 添加此行，用于RLS绕过
+
+# Stripe配置
+STRIPE_SECRET_KEY=your-stripe-secret-key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key  # 必须添加此行用于前端Stripe Elements
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
+NEXT_PUBLIC_BASE_URL=http://localhost:3200
+```
+
+服务角色密钥(`SUPABASE_SERVICE_ROLE_KEY`)可以在Supabase控制台的项目设置 > API > 项目API密钥中找到。
+
+Stripe密钥可以在[Stripe Dashboard](https://dashboard.stripe.com/apikeys)的开发者 > API密钥页面找到。注意区分可发布密钥(Publishable key)和密钥(Secret key)。
+
+> ⚠️ 警告：服务角色密钥具有完全的数据库访问权限，可以绕过所有RLS策略。永远不要在客户端代码中使用它，只在安全的服务器端API路由中使用。
+
+# Stripe设置指南
+
+要正确配置Stripe支付系统，请按照以下步骤操作：
+
+1. 登录[Stripe Dashboard](https://dashboard.stripe.com/)
+2. 确保你处于**测试模式**（页面右上角有"测试数据"标志）
+3. 创建产品和价格：
+   - 导航到**产品** > **添加产品**
+   - 填写产品名称、描述等信息
+   - 在**定价**部分，选择**经常性**（订阅）或**一次性**
+   - 设置价格和计费周期（对于订阅）
+   - 点击**保存产品**
+4. 获取价格ID：
+   - 在产品页面，找到你刚创建的价格
+   - 点击**...** > **查看详情**
+   - 复制以`price_`开头的**价格ID**
+5. 使用此价格ID进行测试：
+   - 将此ID粘贴到支付测试页面的**价格ID**字段中
+   - 点击**订阅**按钮测试结账流程
+
+### 测试卡信息
+
+在测试模式下，使用以下测试卡信息：
+
+- 卡号: `4242 4242 4242 4242`
+- 到期日: 任何未来日期（例如12/34）
+- CVC: 任意三位数（例如123）
+- 姓名和地址: 任何信息
+
+更多测试卡号，请参考[Stripe测试卡文档](https://stripe.com/docs/testing#cards)

@@ -8,10 +8,11 @@ import { createClient } from "~/lib/supabase/server";
 // Get current user from server-side
 export const getCurrentUser = async (): Promise<null | User> => {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   return user;
 };
-
 // Get current user or redirect
 export const getCurrentUserOrRedirect = async (
   forbiddenUrl?: string,
@@ -43,7 +44,9 @@ export const isAuthenticated = async (): Promise<boolean> => {
 // Get user session
 export const getSession = async () => {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   return session;
 };
 

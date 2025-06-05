@@ -1,4 +1,4 @@
-import { createClient } from "./server";
+import { createClient, createServiceClient } from "./server";
 
 // Upload related types
 export interface MediaUpload {
@@ -12,7 +12,7 @@ export interface MediaUpload {
 }
 
 // Payment related types
-export interface PolarCustomer {
+export interface StripeCustomer {
   createdAt: string;
   customerId: string;
   id: string;
@@ -20,7 +20,7 @@ export interface PolarCustomer {
   userId: string;
 }
 
-export interface PolarSubscription {
+export interface StripeSubscription {
   createdAt: string;
   customerId: string;
   id: string;
@@ -32,9 +32,9 @@ export interface PolarSubscription {
 }
 
 export async function createCustomer(
-  customer: Omit<PolarCustomer, "createdAt" | "id" | "updatedAt">
-): Promise<PolarCustomer> {
-  const supabase = await createClient();
+  customer: Omit<StripeCustomer, "createdAt" | "id" | "updatedAt">,
+): Promise<StripeCustomer> {
+  const supabase = await createServiceClient();
 
   const customerData = {
     ...customer,
@@ -43,7 +43,7 @@ export async function createCustomer(
   };
 
   const { data, error } = await supabase
-    .from("polar_customers")
+    .from("stripe_customers")
     .insert(customerData)
     .select()
     .single();
@@ -57,30 +57,30 @@ export async function createCustomer(
 }
 
 export async function createOrUpdateSubscription(
-  subscription: Omit<PolarSubscription, "createdAt" | "id" | "updatedAt">
-): Promise<PolarSubscription> {
-  const supabase = await createClient();
+  subscription: Omit<StripeSubscription, "createdAt" | "id" | "updatedAt">,
+): Promise<StripeSubscription> {
+  const supabase = await createServiceClient();
 
   // Check if subscription exists
   const { data: existing } = await supabase
-    .from('polar_subscriptions')
-    .select('*')
-    .eq('subscriptionId', subscription.subscriptionId)
+    .from("stripe_subscriptions")
+    .select("*")
+    .eq("subscriptionId", subscription.subscriptionId)
     .single();
   if (existing) {
     // Update existing subscription
     const { data, error } = await supabase
-      .from('polar_subscriptions')
+      .from("stripe_subscriptions")
       .update({
         ...subscription,
         updatedAt: new Date().toISOString(),
       })
-      .eq('subscriptionId', subscription.subscriptionId)
+      .eq("subscriptionId", subscription.subscriptionId)
       .select()
       .single();
 
     if (error) {
-      console.error('Error updating subscription:', error);
+      console.error("Error updating subscription:", error);
       throw error;
     }
 
@@ -94,7 +94,7 @@ export async function createOrUpdateSubscription(
   };
 
   const { data, error } = await supabase
-    .from('polar_subscriptions')
+    .from("stripe_subscriptions")
     .insert(subscriptionData)
     .select()
     .single();
@@ -109,7 +109,7 @@ export async function createOrUpdateSubscription(
 
 // Upload service functions
 export async function createUpload(
-  upload: Omit<MediaUpload, "createdAt" | "id" | "updatedAt">
+  upload: Omit<MediaUpload, "createdAt" | "id" | "updatedAt">,
 ): Promise<MediaUpload> {
   const supabase = await createClient();
 
@@ -159,11 +159,11 @@ export async function deleteUpload(id: string): Promise<void> {
 
 // Payment service functions
 export async function getCustomerByUserId(
-  userId: string
-): Promise<null | PolarCustomer> {
-  const supabase = await createClient();
+  userId: string,
+): Promise<null | StripeCustomer> {
+  const supabase = await createServiceClient();
   const { data, error } = await supabase
-    .from("polar_customers")
+    .from("stripe_customers")
     .select("*")
     .eq("userId", userId)
     .single();
@@ -181,11 +181,11 @@ export async function getCustomerByUserId(
 
 export async function getUserSubscriptions(
   userId: string,
-): Promise<PolarSubscription[]> {
-  const supabase = await createClient();
+): Promise<StripeSubscription[]> {
+  const supabase = await createServiceClient();
 
   const { data, error } = await supabase
-    .from("polar_subscriptions")
+    .from("stripe_subscriptions")
     .select("*")
     .eq("userId", userId)
     .order("createdAt", { ascending: false });
@@ -198,9 +198,7 @@ export async function getUserSubscriptions(
   return data || [];
 }
 
-export async function getUserUploads(
-  userId: string
-): Promise<MediaUpload[]> {
+export async function getUserUploads(userId: string): Promise<MediaUpload[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -220,20 +218,20 @@ export async function getUserUploads(
 // Upload file to Supabase Storage
 export async function uploadFile(
   file: File,
-  bucket = "uploads"
-): Promise<{ key: string; url: string; }> {
+  bucket = "uploads",
+): Promise<{ key: string; url: string }> {
   const supabase = await createClient();
 
   const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-  const { data, error } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from(bucket)
     .upload(fileName, file);
 
-  if (error) {
-    console.error("Error uploading file:", error);
-    throw error;
+  if (uploadError) {
+    console.error("Error uploading file:", uploadError);
+    throw uploadError;
   }
 
   const { data: publicUrlData } = await supabase.storage
