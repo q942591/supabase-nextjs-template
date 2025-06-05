@@ -5,12 +5,12 @@ import { UTApi } from "uploadthing/server";
 
 import { db } from "~/db";
 import { uploadsTable } from "~/db/schema/uploads/tables";
-import { auth } from "~/lib/auth";
+import { getCurrentUser } from "~/lib/auth";
 
 export async function DELETE(request: Request) {
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
-    if (!session) {
+    const user = await getCurrentUser();
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -28,7 +28,7 @@ export async function DELETE(request: Request) {
       return new NextResponse("Media not found", { status: 404 });
     }
 
-    if (mediaItem.userId !== session.user.id) {
+    if (mediaItem.userId !== user.id) {
       return new NextResponse("Unauthorized", { status: 403 });
     }
 
@@ -52,15 +52,13 @@ export async function DELETE(request: Request) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(request: Request) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const user = await getCurrentUser();
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Fetch all media types for the user
     const userMedia = await db

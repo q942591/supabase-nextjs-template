@@ -4,7 +4,7 @@ import { UploadThingError } from "uploadthing/server";
 
 import { db } from "~/db";
 import { uploadsTable } from "~/db/schema";
-import { auth } from "~/lib/auth";
+import { getCurrentUser } from "~/lib/auth";
 
 const f = createUploadthing();
 // FileRouter for the app, can contain multiple FileRoutes
@@ -24,15 +24,15 @@ export const ourFileRouter = {
     // Set permissions and file types for this FileRoute
     .middleware(async ({ req }) => {
       // This code runs on your server before upload
-      // Get the user session using auth.api.getSession
-      const session = await auth.api.getSession({ headers: req.headers });
+      // Get the current user using Supabase auth
+      const user = await getCurrentUser();
 
       // If you throw, the user will not be able to upload
-      if (!session?.user?.id) throw new UploadThingError("Unauthorized");
+      if (!user?.id) throw new UploadThingError("Unauthorized");
 
       // Whatever is returned here is accessible in onUploadComplete as `metadata`
       // Ensure userId is correctly passed
-      return { userId: session.user.id };
+      return { userId: user.id };
     })
     .onUploadComplete(async ({ file, metadata }) => {
       // This code RUNS ON THE SERVER after upload
@@ -78,9 +78,9 @@ export const ourFileRouter = {
   })
     .middleware(async ({ req }) => {
       // Same middleware logic as imageUploader
-      const session = await auth.api.getSession({ headers: req.headers });
-      if (!session?.user?.id) throw new UploadThingError("Unauthorized");
-      return { userId: session.user.id };
+      const user = await getCurrentUser();
+      if (!user?.id) throw new UploadThingError("Unauthorized");
+      return { userId: user.id };
     })
     .onUploadComplete(async ({ file, metadata }) => {
       console.log("Upload complete for userId (video):", metadata.userId);

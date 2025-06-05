@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import type { User } from "~/db/schema/users/types";
+import type { User } from "@supabase/supabase-js";
 import type { PolarSubscription } from "~/db/schema/payments/types";
 
 import { PaymentForm } from "~/ui/components/payments/PaymentForm";

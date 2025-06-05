@@ -1,9 +1,9 @@
 "use client";
 
+import type { User } from "@supabase/supabase-js";
+
 import Link from "next/link";
 import React from "react";
-
-import type { User } from "~/db/schema/users/types";
 
 import { signOut, useCurrentUser } from "~/lib/auth-client";
 import { Button } from "~/ui/primitives/button";
@@ -90,7 +90,7 @@ export function DashboardPageClient({ user }: DashboardPageClientProps) {
                 <div className="space-y-1">
                   <p className="text-sm leading-none font-medium">Name</p>
                   <p className="text-sm text-muted-foreground">
-                    {user.name ?? "Not set"}
+                    {user.email ?? "Not set"}
                   </p>
                 </div>
                 <div className="space-y-1">
@@ -99,38 +99,13 @@ export function DashboardPageClient({ user }: DashboardPageClientProps) {
                     {user.email ?? "Not set"}
                   </p>
                 </div>
-                {user?.firstName && (
-                  <div className="space-y-1">
-                    <p className="text-sm leading-none font-medium">
-                      First Name
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {user.firstName}
-                    </p>
-                  </div>
-                )}
-                {user?.lastName && (
-                  <div className="space-y-1">
-                    <p className="text-sm leading-none font-medium">
-                      Last Name
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {user.lastName}
-                    </p>
-                  </div>
-                )}
-                {user?.age ? (
-                  <div className="space-y-1">
-                    <p className="text-sm leading-none font-medium">Age</p>
-                    <p className="text-sm text-muted-foreground">{user.age}</p>
-                  </div>
-                ) : null}
+
                 <div className="space-y-1">
                   <p className="text-sm leading-none font-medium">
                     Two-Factor Authentication
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {user.twoFactorEnabled ? "Enabled" : "Disabled"}
+                    Not Available
                   </p>
                 </div>
               </div>

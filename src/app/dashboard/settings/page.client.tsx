@@ -55,7 +55,7 @@ export function SettingsPageClient() {
               <div className="grid gap-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
-                  defaultValue={user?.name || ""}
+                  defaultValue={user?.email || ""}
                   id="name"
                   placeholder="Enter your name"
                 />

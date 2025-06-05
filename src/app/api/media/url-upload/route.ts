@@ -3,13 +3,13 @@ import { NextResponse } from "next/server";
 
 import { db } from "~/db";
 import { uploadsTable } from "~/db/schema/uploads/tables";
-import { auth } from "~/lib/auth";
+import { getCurrentUser } from "~/lib/auth";
 
 export async function POST(req: Request) {
   try {
     // Check authentication
-    const session = await auth.api.getSession({ headers: req.headers });
-    if (!session?.user) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
       key,
       type,
       url,
-      userId: session.user.id,
+      userId: user.id,
     });
 
     return NextResponse.json({ success: true });

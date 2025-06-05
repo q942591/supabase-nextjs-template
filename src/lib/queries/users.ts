@@ -1,24 +1,26 @@
 import "server-only";
-import { eq } from "drizzle-orm";
+import type { User } from "@supabase/supabase-js";
 
-import type { User } from "~/db/schema/users/types";
-
-import { db } from "~/db";
-import { userTable } from "~/db/schema";
+import { createClient } from "~/lib/supabase/server";
 
 /**
- * Fetches a user from the database by their ID.
+ * Fetches a user from Supabase auth by their ID.
  * @param userId - The ID of the user to fetch.
  * @returns The user object or null if not found.
  */
 export async function getUserById(userId: string): Promise<null | User> {
   try {
-    const user = await db.query.userTable.findFirst({
-      where: eq(userTable.id, userId),
-    });
-    return user ?? null; // Return user or null if undefined
+    const supabase = await createClient();
+    const { data: { user }, error } = await supabase.auth.admin.getUserById(userId);
+
+    if (error) {
+      console.error("Error fetching user by ID:", error);
+      return null;
+    }
+
+    return user;
   } catch (error) {
-    console.error("Failed to fetch user by ID:", error);
+    console.error("Error fetching user by ID:", error);
     return null;
   }
 }

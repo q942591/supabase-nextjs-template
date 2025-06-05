@@ -79,7 +79,9 @@ export const getColumns = ({
           {uploads.map((upload) => {
             // Prepare the item for the gallery viewer
             const galleryItem: GalleryMediaItem = {
-              desc: `Uploaded by ${user.name} on ${upload.createdAt.toLocaleDateString()}`,
+              desc: `Uploaded by ${
+                user.email
+              } on ${upload.createdAt.toLocaleDateString()}`,
               id: upload.id,
               span: "md:col-span-1 md:row-span-2 sm:col-span-1 sm:row-span-2", // Default span value
               title: `Upload ${upload.key.substring(0, 8)}...`,

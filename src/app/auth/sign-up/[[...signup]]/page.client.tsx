@@ -33,33 +33,29 @@ export function SignUpPageClient() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    void signUp
-      .email({
+    try {
+      await signUp({
         email: formData.email,
-        name: formData.name,
         password: formData.password,
-      })
-      .then(() => {
-        router.push("/auth/sign-in?registered=true");
-      })
-      .catch((err: unknown) => {
-        setError("Registration failed. Please try again.");
-        console.error(err);
-      })
-      .finally(() => {
-        setLoading(false);
       });
+      router.push("/auth/sign-in?registered=true");
+    } catch (err: unknown) {
+      setError("Registration failed. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGitHubSignUp = () => {
+  const handleGitHubSignUp = async () => {
     setLoading(true);
     try {
-      void signIn.social({ provider: "github" });
+      await signIn.social({ provider: "github" });
     } catch (err) {
       setError("Failed to sign up with GitHub");
       console.error(err);
@@ -67,10 +63,10 @@ export function SignUpPageClient() {
     }
   };
 
-  const handleGoogleSignUp = () => {
+  const handleGoogleSignUp = async () => {
     setLoading(true);
     try {
-      void signIn.social({ provider: "google" });
+      await signIn.social({ provider: "google" });
     } catch (err) {
       setError("Failed to sign up with Google");
       console.error(err);

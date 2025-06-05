@@ -26,7 +26,7 @@ const AdminPageClient: React.FC<AdminPageClientProps> = ({ initialData }) => {
   const [selectedGalleryItem, setSelectedGalleryItem] =
     useState<GalleryMediaItem | null>(null);
   const [allGalleryItems, setAllGalleryItems] = useState<GalleryMediaItem[]>(
-    [],
+    []
   );
 
   // Handler to open the gallery
@@ -34,18 +34,22 @@ const AdminPageClient: React.FC<AdminPageClientProps> = ({ initialData }) => {
     (item: GalleryMediaItem) => {
       const allUploads = initialData.flatMap((user) =>
         user.uploads.map((upload: MediaUpload) => ({
-          desc: `Uploaded by ${user.name || "Unknown"} on ${new Date(upload.createdAt).toLocaleDateString()}`,
+          desc: `Uploaded by ${user.email || "Unknown"} on ${new Date(
+            upload.createdAt
+          ).toLocaleDateString()}`,
           id: upload.id,
           span: "md:col-span-1 md:row-span-2 sm:col-span-1 sm:row-span-2", // Default span value
-          title: `${upload.type === "image" ? "Image" : "Video"} ${upload.key.substring(0, 8)}...`,
+          title: `${
+            upload.type === "image" ? "Image" : "Video"
+          } ${upload.key.substring(0, 8)}...`,
           type: upload.type as "image" | "video",
           url: upload.url,
-        })),
+        }))
       );
       setAllGalleryItems(allUploads);
       setSelectedGalleryItem(item);
     },
-    [initialData],
+    [initialData]
   );
 
   const columns = useMemo(
@@ -66,10 +70,10 @@ const AdminPageClient: React.FC<AdminPageClientProps> = ({ initialData }) => {
         accessorKey: "name",
         filterFn: filterFn("text"),
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Name" />
+          <DataTableColumnHeader column={column} title="Email" />
         ),
-        meta: defineMeta((row: UserWithUploads) => row.name, {
-          displayName: "Name",
+        meta: defineMeta((row: UserWithUploads) => row.email, {
+          displayName: "Email",
           icon: UserIcon,
           type: "text",
         }) as ColumnMeta<UserWithUploads, unknown>,
@@ -103,10 +107,14 @@ const AdminPageClient: React.FC<AdminPageClientProps> = ({ initialData }) => {
             <div className="flex flex-wrap gap-2">
               {uploads.map((upload: MediaUpload) => {
                 const galleryItem: GalleryMediaItem = {
-                  desc: `Uploaded by ${user.name || "Unknown"} on ${new Date(upload.createdAt).toLocaleDateString()}`,
+                  desc: `Uploaded by ${user.email || "Unknown"} on ${new Date(
+                    upload.createdAt
+                  ).toLocaleDateString()}`,
                   id: upload.id,
                   span: "md:col-span-1 md:row-span-2 sm:col-span-1 sm:row-span-2", // Default span value
-                  title: `${upload.type === "image" ? "Image" : "Video"} ${upload.key.substring(0, 8)}...`,
+                  title: `${
+                    upload.type === "image" ? "Image" : "Video"
+                  } ${upload.key.substring(0, 8)}...`,
                   type: upload.type as "image" | "video",
                   url: upload.url,
                 };
@@ -156,7 +164,7 @@ const AdminPageClient: React.FC<AdminPageClientProps> = ({ initialData }) => {
         id: "uploads",
       },
     ],
-    [handleMediaClick],
+    [handleMediaClick]
   );
 
   // Render the gallery only when an item is selected

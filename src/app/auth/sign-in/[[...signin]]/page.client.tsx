@@ -41,10 +41,10 @@ export function SignInPageClient() {
     }
   };
 
-  const handleGitHubLogin = () => {
+  const handleGitHubLogin = async () => {
     setLoading(true);
     try {
-      void signIn.social({ provider: "github" });
+      await signIn.social({ provider: "github" });
     } catch (err) {
       setError("Failed to sign in with GitHub");
       console.error(err);
@@ -52,10 +52,10 @@ export function SignInPageClient() {
     }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      void signIn.social({ provider: "google" });
+      await signIn.social({ provider: "google" });
     } catch (err) {
       setError("Failed to sign in with Google");
       console.error(err);

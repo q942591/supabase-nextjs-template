@@ -1,29 +1,93 @@
-import { twoFactorClient } from "better-auth/client/plugins";
-import { createAuthClient } from "better-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+"use client";
 
-// Create and export the auth client
-export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
-  plugins: [
-    twoFactorClient({
-      onTwoFactorRedirect: () => {
-        // Redirect to the two-factor page
-        window.location.href = "/auth/two-factor";
-      },
-    }),
-  ],
-});
+import type { Session, User } from "@supabase/supabase-js";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { createClient } from "~/lib/supabase/client";
 
 // Auth methods
-export const { signIn, signOut, signUp, useSession } = authClient;
+export const signIn = {
+  email: async ({ email, password }: { email: string; password: string }) => {
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  },
+  social: async ({ provider }: { provider: "github" | "google" }) => {
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+      provider,
+    });
+    if (error) throw error;
+    return data;
+  },
+};
 
-// Two-factor methods
-export const twoFactor = authClient.twoFactor;
+export const signUp = async ({ email, password }: { email: string; password: string }) => {
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    options: {
+      emailRedirectTo: `${window.location.origin}/auth/callback`,
+    },
+    password,
+  });
+  if (error) throw error;
+  return data;
+};
+
+export const signOut = async () => {
+  const supabase = createClient();
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+};
 
 // Hook to get current user data and loading state
-// !! Returns only raw (static) data, use getCurrentUserOrRedirect for data from db
+export const useSession = () => {
+  const [session, setSession] = useState<null | Session>(null);
+  const [user, setUser] = useState<null | User>(null);
+  const [isPending, setIsPending] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Get initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsPending(false);
+    };
+
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setIsPending(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return {
+    data: { session, user },
+    isPending,
+  };
+};
+
+// Hook to get current user data and loading state
 export const useCurrentUser = () => {
   const { data, isPending } = useSession();
   return {
@@ -34,7 +98,6 @@ export const useCurrentUser = () => {
 };
 
 // Hook similar to getCurrentUserOrRedirect for client-side use
-// !! Returns only raw (static) data, use getCurrentUserOrRedirect for data from db
 export const useCurrentUserOrRedirect = (
   forbiddenUrl = "/auth/sign-in",
   okUrl = "",
@@ -48,18 +111,17 @@ export const useCurrentUserOrRedirect = (
     if (!isPending && router) {
       // if no user is found
       if (!data?.user) {
-        // redirect to forbidden url unless explicitly ignored
         if (!ignoreForbidden) {
           router.push(forbiddenUrl);
         }
-        // if ignoreforbidden is true, we do nothing and let the hook return the null user
-      } else if (okUrl) {
-        // if user is found and an okurl is provided, redirect there
-        router.push(okUrl);
+      } else {
+        // if user is found and okUrl is provided
+        if (okUrl) {
+          router.push(okUrl);
+        }
       }
     }
-    // depend on loading state, user data, router instance, and redirect urls
-  }, [isPending, data?.user, router, forbiddenUrl, okUrl, ignoreForbidden]);
+  }, [data?.user, isPending, router, forbiddenUrl, okUrl, ignoreForbidden]);
 
   return {
     isPending,
@@ -68,17 +130,92 @@ export const useCurrentUserOrRedirect = (
   };
 };
 
-// !! currently not used in the app
-/**
- * returns the raw session object from better-auth client.
- * this is a direct wrapper around authclient.getsession and returns the same shape.
- *
- * use this when you require advanced session access patterns, e.g.:
- * - you need to fetch the session manually (e.g., with swr, react query, or custom logic).
- * - you need to access the session data directly without using the usesession hook.
- * - you want more control than the usesession hook provides.
- *
- * @example
- * const { data, error } = await useRawSession();
- */
-// export const useRawSession = authClient.getSession;
+// Get current user session (for compatibility)
+export const getCurrentUserSession = async () => {
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  return session;
+};
+
+// Two-factor authentication methods
+export const twoFactor = {
+  disable: async ({ password }: { password: string }) => {
+    const supabase = createClient();
+
+    try {
+      // Get all factors
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+
+      if (factorsError) throw factorsError;
+
+      // Unenroll all TOTP factors
+      for (const factor of factors.totp) {
+        const { error: unenrollError } = await supabase.auth.mfa.unenroll({
+          factorId: factor.id
+        });
+
+        if (unenrollError) throw unenrollError;
+      }
+
+      return { success: true };
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  enable: async ({ password }: { password: string }) => {
+    const supabase = createClient();
+
+    try {
+      // Enroll MFA
+      const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
+        factorType: 'totp',
+        friendlyName: 'Authenticator App'
+      });
+
+      if (enrollError) throw enrollError;
+
+      return {
+        data: {
+          backupCodes: [], // Supabase doesn't provide backup codes by default
+          secret: enrollData.totp.secret,
+          totpURI: enrollData.totp.uri
+        }
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  verifyBackupCode: async ({ code }: { code: string }) => {
+    // Supabase doesn't have built-in backup codes
+    // This would need to be implemented with custom logic
+    throw new Error('Backup codes not implemented for Supabase');
+  },
+
+  verifyTotp: async ({ code }: { code: string }) => {
+    const supabase = createClient();
+
+    try {
+      // Get the challenge
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: '' // Will need to get the factor ID
+      });
+
+      if (challengeError) throw challengeError;
+
+      // Verify the code
+      const { data, error } = await supabase.auth.mfa.verify({
+        challengeId: challengeData.id,
+        code,
+        factorId: challengeData.id
+      });
+
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+};

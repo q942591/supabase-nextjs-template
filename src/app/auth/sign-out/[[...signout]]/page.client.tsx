@@ -17,13 +17,14 @@ export function SignOutPageClient() {
   };
 
   const handleSignOut = async () => {
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push("/");
-        },
-      },
-    });
+    try {
+      await signOut();
+      router.push("/");
+    } catch (error) {
+      console.error("Sign out error:", error);
+      // Still redirect even if there's an error
+      router.push("/");
+    }
   };
 
   return (
@@ -48,7 +49,7 @@ export function SignOutPageClient() {
         <Skeleton
           className={cn(
             buttonVariants({ size: "default", variant: "secondary" }),
-            "bg-muted text-muted-foreground",
+            "bg-muted text-muted-foreground"
           )}
         >
           Log out
