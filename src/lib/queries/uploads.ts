@@ -1,10 +1,6 @@
 import "server-only";
-import { desc, eq } from "drizzle-orm";
-
-import type { UserWithUploads } from "~/app/admin/summary/page.types";
 
 import { getCurrentUser } from "~/lib/auth";
-import { createClient } from "~/lib/supabase/server";
 import { getUserUploads } from "~/lib/supabase/service";
 
 // Fetch users and their uploads

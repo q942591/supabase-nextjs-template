@@ -28,7 +28,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "eslint.config.js",
-    "reset.d.ts"
+    "reset.d.ts",
+    ".tests/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

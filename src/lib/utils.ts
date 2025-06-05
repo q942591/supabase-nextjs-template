@@ -1,4 +1,4 @@
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -20,14 +20,14 @@ export function getURL(path: string) {
   let url =
     process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
     process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
-    'http://localhost:3000/'
+    "http://localhost:3200/";
 
   // 确保非localhost环境使用https
   url = url.includes("localhost")
     ? url
     : url.startsWith("http")
-    ? url
-    : `https://${url}`;
+      ? url
+      : `https://${url}`;
 
   // 确保URL末尾有斜杠（如果需要）
   url = url.endsWith("/") || path.startsWith("/") ? url : `${url}/`;
