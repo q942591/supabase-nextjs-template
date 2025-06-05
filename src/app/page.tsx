@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import United24Banner from "~/ui/components/banners/u24";
 import { HeroBadge } from "~/ui/components/hero-badge";
+import { I18nExample } from "~/ui/components/i18n-example";
 import { ProductCard } from "~/ui/components/product-card";
 import { TestimonialsSection } from "~/ui/components/testimonials/testimonials-with-marquee";
 import { Button } from "~/ui/primitives/button";
@@ -491,6 +492,26 @@ export default function HomePage() {
 
         {/* Sample banner */}
         <United24Banner animateGradient={false} />
+
+        {/* I18n Example Section */}
+        <section className="py-20">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2
+              className={`
+                text-3xl font-bold tracking-tight text-foreground
+                sm:text-4xl
+              `}
+            >
+              国际化示例
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              本项目支持英文和中文，可以使用右上角的语言切换器切换语言
+            </p>
+          </div>
+          <div className="mt-10">
+            <I18nExample />
+          </div>
+        </section>
       </main>
     </>
   );

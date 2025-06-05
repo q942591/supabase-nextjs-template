@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
+import { defaultLocale, locales } from "~/lib/i18n";
+
 export default {
   eslint: { ignoreDuringBuilds: true },
+  // 国际化配置
+  i18n: {
+    defaultLocale,
+    // 不在URL中添加前缀
+    localeDetection: false,
+    locales,
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

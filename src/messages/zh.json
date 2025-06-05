@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "Supabase Next.js 模板",
+    "description": "使用 Next.js 和 Supabase 构建的强大模板"
+  },
+  "nav": {
+    "home": "首页",
+    "products": "产品",
+    "dashboard": "仪表盘",
+    "admin": "管理",
+    "notifications": "通知",
+    "login": "登录",
+    "signup": "注册",
+    "logout": "退出"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "发生错误",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "search": "搜索"
+  }
+}

@@ -9,6 +9,7 @@ import { SEO_CONFIG } from "~/app";
 import { useCurrentUser } from "~/lib/auth-client";
 import { cn } from "~/lib/cn";
 import { Cart } from "~/ui/components/cart";
+import { LanguageSwitcher } from "~/ui/components/language-switcher";
 import { Button } from "~/ui/primitives/button";
 import { Skeleton } from "~/ui/primitives/skeleton";
 
@@ -127,6 +128,13 @@ export function Header({ showAuth = true }: HeaderProps) {
               <Skeleton className="h-9 w-9 rounded-full" />
             ) : (
               <NotificationsWidget />
+            )}
+
+            {/* Language Switcher */}
+            {isPending ? (
+              <Skeleton className="h-9 w-9 rounded-full" />
+            ) : (
+              <LanguageSwitcher />
             )}
 
             {showAuth && (

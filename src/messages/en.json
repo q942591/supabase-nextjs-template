@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "Supabase Next.js Template",
+    "description": "A robust template built with Next.js and Supabase"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "notifications": "Notifications",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search"
+  }
+}

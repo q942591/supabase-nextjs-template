@@ -11,5 +11,6 @@
   "eslint.rules.customizations": [
     { "rule": "readable-tailwind/*", "severity": "off" },
     { "rule": "perfectionist/*", "severity": "off" }
-  ]
+  ],
+  "i18n-ally.localesPaths": ["src/messages"]
 }
