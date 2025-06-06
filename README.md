@@ -1,156 +1,97 @@
-# 🏬 relivator • next.js ecommerce starter
+# Supabase Next.js 模板
 
-[demo](https://relivator.com) — [sponsor](https://github.com/sponsors/blefnk) — [discord](https://discord.gg/Pb8uKbwpsJ) — [github](https://github.com/blefnk/relivator) — [docs](https://deepwiki.com/blefnk/relivator-nextjs-template)
+这是一个基于 Next.js 15 和 Supabase 构建的全栈应用模板，集成了用户认证、数据库管理和支付处理功能。
 
-> **relivator** is a robust ecommerce template built with next.js and other modern technologies. it's designed for developers who want a fast, modern, and scalable foundation without reinventing the backend.
+## 项目特点
 
-## stack
+- 🚀 **现代技术栈**：Next.js 15 + React 19 + TypeScript 5.8
+- 🎨 **UI框架**：Tailwind CSS 4.1 + Shadcn UI 组件库
+- 🔒 **认证系统**：Supabase Auth 认证与授权
+- 💾 **数据存储**：Supabase PostgreSQL 数据库
+- 💳 **支付集成**：Stripe 支付处理系统
+- 🌐 **多语言支持**：基于 next-intl 的国际化
+- 🔧 **开发体验**：ESLint + Biome + TypeScript 严格类型检查
 
-1. 🧱 **core**: [nextjs 15.3](https://nextjs.org) + [react 19.1](https://react.dev) + [ts 5.8](https://typescriptlang.org)
-2. 🎨 **ui**: [tailwind 4.1](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
-3. 🔒 **auth**: [better-auth](https://better-auth.com)
-4. 🎬 **anims**: [animejs](https://animejs.com)
-5. 📦 **storage**: [uploadthing](https://uploadthing.com)
-6. 📊 **analytics**: [vercel](https://vercel.com/docs/analytics)
-7. 🧬 **db**: [drizzle-orm](https://orm.drizzle.team) ([pg](https://neon.tech/postgresql/tutorial)) + [neon](https://neon.tech)/(🤔🔜)[supabase](https://supabase.com)
-8. 🏗️ **dx**: [eslint](https://eslint.org) + [biome](https://biomejs.dev) + [knip](https://knip.dev)
-9. 📝 **forms**: [react-form](https://tanstack.com/form) _(🔜 w.i.p)_ + [arktype](https://arktype.io)
-10. 📅 **tables**: [react-table](https://tanstack.com/table)
-11. 🌐 **i18n**: [next-intl](https://next-intl.dev) _(🔜 w.i.p)_
-12. 💌 **email**: [resend](https://resend.com) _(🔜 w.i.p)_
-13. 💳 **payments**: [polar](https://polar.sh)
-14. 🔑 **api**: [orpc](https://orpc.unnoq.com) _(🔜 w.i.p)_
+## 快速开始
 
-> these features define the main reliverse stack. for an alternative setup—featuring clerk, stripe, trpc, and more—check out [versator](https://github.com/blefnk/versator).
-
-## quick start
-
-1. install [git](https://git-scm.com), [node.js](https://nodejs.org), [bun](https://bun.sh).
-2. run:
+1. 克隆仓库并安装依赖
 
    ```bash
-   git clone https://github.com/blefnk/relivator.git
-   cd relivator
+   git clone <repository-url>
+   cd supabase-nextjs-template
    bun install
-   copy .env.example .env
    ```
 
-3. fill in the required environment variables in the `.env` file.
-4. optionally, edit the `src/app.ts` file to make the app yours.
-5. run:
+2. 配置环境变量
 
    ```bash
-   bun db:push # populate db with schema
-   bun dev # start development server
-   bun run build # build production version
+   cp .env.example .env.local
    ```
 
-6. edit something in the code manually or ask ai to help you.
-7. done. seriously. you're building now.
+3. 编辑 `.env.local` 文件，添加必要的环境变量（详见下方环境变量配置部分）
 
-<!-- 
-2. run:
+4. 运行开发服务器
+
    ```bash
-   bun i -g @reliverse/cli
-   reliverse cli
-   ```
-3. select **"create a new project"**.
-4. follow prompts to configure your store.
--->
-
-### commands
-
-| command         | description                    |
-|-----------------|--------------------------------|
-| `bun dev`       | start local development        |
-| `bun build`     | create a production build      |
-| `bun latest`    | install latest deps            |
-| `bun ui`        | add shadcn components          |
-| `bun db:push`   | apply db schema changes        |
-| `bun db:auth`   | update auth-related tables     |
-| `bun db:studio` | open visual db editor          |
-
-## polar integration
-
-relivator now integrates with [polar](https://polar.sh) for payment processing and subscription management.
-
-### features
-
-- checkout flow for subscription purchases
-- customer portal for managing subscriptions
-- webhook handling for subscription events
-- automatic customer creation on signup
-- integration with better-auth for seamless authentication
-
-### setup instructions
-
-1. create an account on [polar](https://polar.sh)
-2. create an organization and get an organization access token
-3. configure your environment variables in `.env`:
-
-   ```
-   POLAR_ACCESS_TOKEN="your_access_token"
-   POLAR_WEBHOOK_SECRET="your_webhook_secret"
-   POLAR_ENVIRONMENT="production" # or "sandbox" for testing
+   bun dev
    ```
 
-4. create products in the polar dashboard
-5. update the product IDs in `src/lib/auth.ts` to match your polar products:
+5. 构建生产版本
 
-   ```typescript
-   checkout: {
-     enabled: true,
-     products: [
-       {
-         productId: "your-product-id", // Replace with actual product ID from Polar Dashboard
-         slug: "pro" // Custom slug for easy reference in Checkout URL
-       }
-     ]
-   }
+   ```bash
+   bun build
    ```
 
-6. run `bun db:push` to create the necessary database tables
-7. start the application with `bun dev`
+## 功能模块
 
-### verification
+### 用户认证
 
-to verify that the integration is working:
+使用 Supabase Auth 实现完整的用户认证流程，包括：
 
-1. sign up for an account
-2. navigate to the dashboard billing page (`/dashboard/billing`)
-3. try subscribing to a plan
-4. check that your subscription appears in the billing dashboard
-5. test the customer portal by clicking "manage subscription"
+- 邮箱密码注册与登录
+- 第三方登录集成（可选）
+- 用户会话管理
+- 权限控制
 
-### api routes
+### 支付系统
 
-the following api routes are available for payment processing:
+集成了 Stripe 支付处理系统，提供多种支付功能：
 
-- `/api/payments/customer-state` - get the current customer state
-- `/api/payments/subscriptions` - get user subscriptions
+- 一次性支付处理
+- 订阅支付管理
+- 商品购买流程
+- 完整的支付测试环境
 
-## notes
+### 支付测试页面
 
-- relivator 1.4.0+ is ai-ready — optimized for ai-powered ides like cursor, making onboarding effortless even for beginners.
-- version 1.3.0 evolved into versator, featuring [clerk](https://clerk.com) authentication and [stripe](https://stripe.com) payments. explore [versator demo](https://versator.relivator.com/en), [repo](https://github.com/blefnk/versator), or [docs](https://docs.reliverse.org/versator).
+访问 `/payments/test` 路径可以体验完整的支付测试功能：
 
-## stand with ukraine
+1. **商品购买**：浏览商品、添加到购物车、结账支付
+2. **一次性支付**：测试单次付款流程
+3. **订阅支付**：测试订阅付款流程
+4. **API测试**：测试401未授权响应
 
-- 💙 help fund drones, medkits, and victory.
-- 💛 every dollar helps stop [russia's war crimes](https://war.ukraine.ua/russia-war-crimes) and saves lives.
-- ‼️ please, [donate now](https://u24.gov.ua), it matters.
+## 环境变量配置
 
-## stand with reliverse
+确保在`.env.local`文件中添加以下环境变量：
 
-- ⭐ [star the repo](https://github.com/blefnk/relivator) to help the reliverse community grow.
-- 😉 follow this project's author, [nazar kornienko](https://github.com/blefnk) and his [reliverse](https://github.com/reliverse) ecosystem, to get updates about new projects faster.
-- 🦄 [become a sponsor](https://github.com/sponsors/blefnk) and power the next wave of tools that _just feel right_.
+```bash
+# Supabase配置
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # 添加此行，用于RLS绕过
 
-> every bit of support helps keep the dream alive: dev tools that don't suck.
+# Stripe配置
+STRIPE_SECRET_KEY=your-stripe-secret-key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key  # 必须添加此行用于前端Stripe Elements
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
+NEXT_PUBLIC_BASE_URL=http://localhost:3200
+```
 
-## license
+- **Supabase密钥**：可在Supabase控制台的项目设置 > API > 项目API密钥中找到
+- **Stripe密钥**：可在[Stripe Dashboard](https://dashboard.stripe.com/apikeys)的开发者 > API密钥页面找到
 
-mit © 2025 [nazar kornienko (blefnk)](https://github.com/blefnk), [reliverse](https://github.com/reliverse)
+> ⚠️ 警告：服务角色密钥具有完全的数据库访问权限，可以绕过所有RLS策略。永远不要在客户端代码中使用它，只在安全的服务器端API路由中使用。
 
 ## Supabase 数据库迁移
 
@@ -196,35 +137,12 @@ mit © 2025 [nazar kornienko (blefnk)](https://github.com/blefnk), [reliverse](h
 
 ### 故障排除
 
-如果遇到`relation "public.polar_customers" does not exist`等错误，请确保执行了所有迁移文件，特别是：
+如果遇到`relation "public.stripe_customers" does not exist`等错误，请确保执行了所有迁移文件，特别是：
 
 - `20231101_create_payments_table.sql`
 - `20240801_create_polar_tables.sql`
 
-# 环境变量配置
-
-确保在`.env.local`文件中添加以下环境变量：
-
-```bash
-# Supabase配置
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # 添加此行，用于RLS绕过
-
-# Stripe配置
-STRIPE_SECRET_KEY=your-stripe-secret-key
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key  # 必须添加此行用于前端Stripe Elements
-STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
-NEXT_PUBLIC_BASE_URL=http://localhost:3200
-```
-
-服务角色密钥(`SUPABASE_SERVICE_ROLE_KEY`)可以在Supabase控制台的项目设置 > API > 项目API密钥中找到。
-
-Stripe密钥可以在[Stripe Dashboard](https://dashboard.stripe.com/apikeys)的开发者 > API密钥页面找到。注意区分可发布密钥(Publishable key)和密钥(Secret key)。
-
-> ⚠️ 警告：服务角色密钥具有完全的数据库访问权限，可以绕过所有RLS策略。永远不要在客户端代码中使用它，只在安全的服务器端API路由中使用。
-
-# Stripe设置指南
+## Stripe设置指南
 
 要正确配置Stripe支付系统，请按照以下步骤操作：
 
@@ -254,3 +172,33 @@ Stripe密钥可以在[Stripe Dashboard](https://dashboard.stripe.com/apikeys)的
 - 姓名和地址: 任何信息
 
 更多测试卡号，请参考[Stripe测试卡文档](https://stripe.com/docs/testing#cards)
+
+## 开发指南
+
+### 目录结构
+
+```
+src/
+├── api/         # API路由和服务
+├── app/         # 应用页面和路由
+├── lib/         # 工具函数和服务
+├── ui/          # UI组件
+└── app.ts       # 应用配置
+```
+
+### 命令列表
+
+| 命令 | 描述 |
+|------|------|
+| `bun dev` | 启动开发服务器 |
+| `bun build` | 构建生产版本 |
+| `bun check` | 运行类型检查和代码风格检查 |
+| `bun ui` | 添加shadcn UI组件 |
+
+## 贡献
+
+欢迎提交PR或Issue来改进这个项目！
+
+## 许可
+
+MIT License
